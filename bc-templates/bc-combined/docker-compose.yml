@@ -3,6 +3,7 @@ services:
     image: buttonscodes/bc-combined:1.0.0
     ports:
       - "3001:3000" # ComfyUI
+      - "3333:3333" # DiscoArt
       - "8888:8888" # Jupyter
       - "4040:4040" # Filebrowser
       - "8080:8080" # VS Code

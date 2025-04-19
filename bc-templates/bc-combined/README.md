@@ -1,4 +1,4 @@
-This template provides [ComfyUI v0.3.10](https://github.com/comfyanonymous/ComfyUI/releases/tag/v0.3.10) (with ComfyUI Manager) with a couple of pre-installed models and Jupyter Lab.
+This template provides [ComfyUI v0.3.29](https://github.com/comfyanonymous/ComfyUI/releases/tag/v0.3.29) (with ComfyUI Manager) with a couple of pre-installed models and Jupyter Lab.
 
 ## Models
 
