@@ -115,6 +115,10 @@ RUN jupyter contrib nbextension install --user && \
     jupyter nbextension enable varInspector/main && \
     jupyter nbextension enable --py widgetsnbextension
 
+# Create workspace and output directories
+RUN mkdir -p /workspace/discout
+RUN mkdir -p /examples
+
 # Add welcome banner
 ADD welcome-banner.txt /root/welcome-banner.txt
 COPY examples /examples
@@ -124,9 +128,6 @@ RUN echo 'cat ~/welcome-banner.txt' >> ~/.bashrc &&\
 
 # Get discoart model config
 RUN wget https://raw.githubusercontent.com/jina-ai/discoart/main/discoart/resources/models.yml -O /models.yaml
-
-# Create workspace and output directories
-RUN mkdir -p /workspace/discout
 
 # Setup DiscoArt environment
 ENV DISCOART_OPTOUT_CLOUD_BACKUP='1'
