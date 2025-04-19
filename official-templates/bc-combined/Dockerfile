@@ -2,7 +2,11 @@ FROM runpod/base:0.6.2-cuda12.1.0
 
 ARG COMFYUI_VERSION
 
+# VS Code
 EXPOSE 8080
+
+# DiscoArt
+EXPOSE 8888
 
 
 # Install locales
@@ -97,7 +101,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
 RUN cd / && \
     git clone https://github.com/Run-Pod/discoart-ui.git && \
     cd discoart-ui && \
-    npm install
+    npm install --legacy-peer-deps
 
 # Setup DiscoArt environment
 ENV DISCOART_OPTOUT_CLOUD_BACKUP='1'
@@ -106,9 +110,12 @@ ENV DISCOART_OUTPUT_DIR='/workspace/out'
 # Create workspace and output directories
 RUN mkdir -p /workspace/out
 
-############### Jupyter ###############
+############### Jupyter/DiscoArt ###############
 
-# Setup Jupyter extensions
+# Downgrade notebook to a compatible version
+RUN pip install notebook==6.5.6
+
+# Install contrib extensions (for DiscoArt)
 RUN jupyter contrib nbextension install --user && \
     jupyter nbextension enable varInspector/main && \
     jupyter nbextension enable --py widgetsnbextension

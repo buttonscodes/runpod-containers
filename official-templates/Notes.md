@@ -1,3 +1,16 @@
+# To Build
+
+## From the project root:
+docker buildx bake --file ./official-templates/bc-combined/docker-bake.hcl
+
+# To Run
+
+docker run --rm -it buttonscodes/bc-combined:1.0.0 /bin/bash
+
+# To Push
+
+docker push buttonscodes/bc-combined:1.0.0
+
 # RunPod Official Templates - Component Analysis
 
 This document lists the main components installed in each Docker template.
