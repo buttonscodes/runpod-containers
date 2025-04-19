@@ -2,18 +2,42 @@ FROM runpod/base:0.4.0-cuda12.1.0
 
 ARG COMFYUI_VERSION
 
-# Create model directories
-RUN mkdir -p /ComfyUI/models/{checkpoints,clip,clip_vision,controlnet,diffusers,embeddings,loras,upscale_models,vae}
+EXPOSE 8080
 
-# Install additional system packages
+USER 1000
+ENV USER=coder
+WORKDIR /home/coder
+
+RUN adduser --gecos '' --disabled-password coder \
+    && echo "coder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/nopasswd
+
+# https://wiki.debian.org/Locale#Manually
+RUN sed -i "s/# en_US.UTF-8/en_US.UTF-8/" /etc/locale.gen \
+    && locale-gen
+ENV LANG=en_US.UTF-8
+
+# Install system packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git-lfs \
-    zsh \
-    htop \
-    vim.tiny \
+    curl \
+    dumb-init \
     expect \
+    git \
+    git-lfs \
     gnome-keyring \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    htop \
+    locales \
+    lsb-release \
+    man \
+    nano \
+    openssh-client \
+    procps \
+    sudo \
+    vim.tiny \
+    zsh \
+    && git lfs install \
+    && apt-get clean \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/*
 
 # Setup Python and pip symlinks
 RUN ln -sf /usr/bin/python3.10 /usr/bin/python && \
@@ -21,19 +45,16 @@ RUN ln -sf /usr/bin/python3.10 /usr/bin/python && \
     python -m pip install --upgrade pip && \
     ln -sf /usr/local/bin/pip3.10 /usr/local/bin/pip
 
-# Install Node.js for DiscoArt UI
-RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
-    apt-get install -y nodejs
 
-# Install VS Code Server
-ENV VSCODE_SERVE_MODE=remote
-RUN wget -q -O- https://aka.ms/install-vscode-server/setup.sh | sh
+############### VS Code ##############
 
-# Copy VS Code server scripts
-COPY --from=runpod/vscode-server:latest /usr/local/bin/init /usr/local/bin/
-COPY --from=runpod/vscode-server:latest /usr/local/bin/serve-local /usr/local/bin/
-COPY --from=runpod/vscode-server:latest /usr/local/bin/serve-remote /usr/local/bin/
-COPY --from=runpod/vscode-server:latest /usr/local/bin/start-vscode /usr/local/bin/
+RUN curl -fsSL https://code-server.dev/install.sh | sh
+
+
+############### ComfyUI ###############
+
+# Create model directories
+RUN mkdir -p /ComfyUI/models/{checkpoints,clip,clip_vision,controlnet,diffusers,embeddings,loras,upscale_models,vae}
 
 # Install ComfyUI and ComfyUI Manager
 RUN cd /ComfyUI && \
@@ -63,10 +84,14 @@ RUN pip install \
     jupyter_contrib_nbextensions \
     discoart==0.12.0
 
-# Setup Jupyter extensions
-RUN jupyter contrib nbextension install --user && \
-    jupyter nbextension enable varInspector/main && \
-    jupyter nbextension enable --py widgetsnbextension
+# Create user directory to store logs
+RUN mkdir -p /ComfyUI/user
+
+############### DiscoArt ###############
+
+# Install Node.js for DiscoArt UI
+RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
+    apt-get install -y nodejs
 
 # Install DiscoArt UI
 RUN cd / && \
@@ -81,15 +106,29 @@ ENV DISCOART_OUTPUT_DIR='/workspace/out'
 # Create workspace and output directories
 RUN mkdir -p /workspace/out
 
-# Create user directory to store logs
-RUN mkdir -p /ComfyUI/user
+############### Jupyter ###############
+
+# Setup Jupyter extensions
+RUN jupyter contrib nbextension install --user && \
+    jupyter nbextension enable varInspector/main && \
+    jupyter nbextension enable --py widgetsnbextension
+
+############### Start Scripts ###############
+
+# NGINX Proxy
+COPY --from=proxy nginx.conf /etc/nginx/nginx.conf
+COPY --from=proxy readme.html /usr/share/nginx/html/readme.html
 
 # Copy configuration files
 COPY README.md /usr/share/nginx/html/README.md
 COPY extra_model_paths.yml /ComfyUI/extra_model_paths.yml
+
+# Start Scripts
+
+COPY --from=scripts start.sh /
 COPY pre_start.sh /pre_start.sh
 COPY post_start.sh /post_start.sh
-RUN chmod +x /pre_start.sh /post_start.sh
+RUN chmod +x /pre_start.sh /post_start.sh /start.sh
 
 LABEL maintainer="BC Team"
 LABEL version="1.0.0"
