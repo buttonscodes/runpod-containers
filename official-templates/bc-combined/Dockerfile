@@ -5,10 +5,13 @@ ARG COMFYUI_VERSION
 EXPOSE 8080
 
 
-# https://wiki.debian.org/Locale#Manually
-RUN sed -i "s/# en_US.UTF-8/en_US.UTF-8/" /etc/locale.gen \
+# Install locales
+RUN apt update && apt install -y locales \
+    && sed -i "s/# en_US.UTF-8/en_US.UTF-8/" /etc/locale.gen \
     && locale-gen
 ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
 
 # Install system packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
