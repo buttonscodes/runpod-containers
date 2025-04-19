@@ -17,7 +17,7 @@ variable "DOCKERHUB_IMG" {
 
 // For GitHub Actions compatibility
 variable "GITHUB_WORKSPACE" {
-    default = "."
+    default = "/root/runpod-containers"
 }
 
 target "default" {
