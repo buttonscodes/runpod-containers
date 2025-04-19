@@ -1,18 +1,18 @@
 // ComfyUI Docker Bake file
 variable "RELEASE" {
-    default = "6.0.0"
+    default = "1.0.0"
 }
 
 variable "COMFYUI_VERSION" {
-    default = "v0.3.10"
+    default = "v0.3.29"
 }
 
 variable "DOCKERHUB_REPO" {
-    default = "runpod"
+    default = "buttonscodes"
 }
 
 variable "DOCKERHUB_IMG" {
-    default = "stable-diffusion"
+    default = "bc-combined"
 }
 
 // For GitHub Actions compatibility
@@ -21,9 +21,9 @@ variable "GITHUB_WORKSPACE" {
 }
 
 target "default" {
-    context = "${GITHUB_WORKSPACE}/official-templates/stable-diffusion-comfyui"
-    dockerfile = "${GITHUB_WORKSPACE}/official-templates/stable-diffusion-comfyui/Dockerfile"
-    tags = ["${DOCKERHUB_REPO}/${DOCKERHUB_IMG}:comfy-ui-${RELEASE}"]
+    context = "${GITHUB_WORKSPACE}/official-templates/bc-combined"
+    dockerfile = "${GITHUB_WORKSPACE}/official-templates/bc-combined/Dockerfile"
+    tags = ["${DOCKERHUB_REPO}/${DOCKERHUB_IMG}:${RELEASE}"]
     platforms = ["linux/amd64"]
     contexts = {
         scripts = "${GITHUB_WORKSPACE}/container-template"
