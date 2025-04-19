@@ -4,12 +4,6 @@ ARG COMFYUI_VERSION
 
 EXPOSE 8080
 
-USER 1000
-ENV USER=coder
-WORKDIR /home/coder
-
-RUN adduser --gecos '' --disabled-password coder \
-    && echo "coder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/nopasswd
 
 # https://wiki.debian.org/Locale#Manually
 RUN sed -i "s/# en_US.UTF-8/en_US.UTF-8/" /etc/locale.gen \
@@ -45,6 +39,9 @@ RUN ln -sf /usr/bin/python3.10 /usr/bin/python && \
     python -m pip install --upgrade pip && \
     ln -sf /usr/local/bin/pip3.10 /usr/local/bin/pip
 
+# Add coder user and set sudo permissions
+RUN adduser --gecos '' --disabled-password coder \
+    && echo "coder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/nopasswd
 
 ############### VS Code ##############
 
@@ -133,5 +130,10 @@ RUN chmod +x /pre_start.sh /post_start.sh /start.sh
 LABEL maintainer="BC Team"
 LABEL version="1.0.0"
 LABEL description="Combined AI Image Generation Environment with ComfyUI, DiscoArt, and VS Code Server"
+
+# Set user
+USER 1000
+ENV USER=coder
+WORKDIR /home/coder
 
 CMD [ "/start.sh" ]
