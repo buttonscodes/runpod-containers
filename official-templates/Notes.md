@@ -1,7 +1,7 @@
 # To Build
 
 ## From the project root:
-docker buildx bake --file ./official-templates/bc-combined/docker-bake.hcl
+docker buildx bake --file ./bc-templates/bc-combined/docker-bake.hcl
 
 # To Run
 

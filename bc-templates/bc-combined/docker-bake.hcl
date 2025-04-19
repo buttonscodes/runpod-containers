@@ -21,8 +21,8 @@ variable "GITHUB_WORKSPACE" {
 }
 
 target "default" {
-    context = "${GITHUB_WORKSPACE}/official-templates/bc-combined"
-    dockerfile = "${GITHUB_WORKSPACE}/official-templates/bc-combined/Dockerfile"
+    context = "${GITHUB_WORKSPACE}/bc-templates/bc-combined"
+    dockerfile = "${GITHUB_WORKSPACE}/bc-templates/bc-combined/Dockerfile"
     tags = ["${DOCKERHUB_REPO}/${DOCKERHUB_IMG}:${RELEASE}"]
     platforms = ["linux/amd64"]
     contexts = {
